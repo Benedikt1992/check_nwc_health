@@ -388,7 +388,7 @@ AM_INSTALL_PROGRAM_FLAGS=@INSTALL_OPTS@
 	chmod +x $@
 
 $(libexec_SCRIPTS) : $(EXTRA_DIST)
-	$(ECHO) "#! #PERL# -w" | $(AWK) -f ./subst > $@
+	$(ECHO) "#! #PERL#" | $(AWK) -f ./subst > $@
 	$(ECHO) "# nagios: -epn" >> $@
 	$(ECHO) >> $@
 	if [ "${STANDALONE}" == "yes" ]; then \
@@ -403,4 +403,3 @@ $(libexec_SCRIPTS) : $(EXTRA_DIST)
 	$(ECHO) "package main;" >> $@
 	$(CAT) $(libexec_SCRIPTS).pl | $(AWK) -f ./subst >> $@
 	chmod +x $@
-
