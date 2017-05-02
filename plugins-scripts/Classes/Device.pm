@@ -32,6 +32,7 @@ sub classify {
       $self->{productname} = 'hp' if $self->opts->servertype eq 'hp';
       $self->{productname} = 'brocade' if $self->opts->servertype eq 'brocade';
       $self->{productname} = 'netscreen' if $self->opts->servertype eq 'netscreen';
+      $self->{productname} = 'junos' if $self->opts->servertype eq 'junos';
       $self->{productname} = 'linuxlocal' if $self->opts->servertype eq 'linuxlocal';
       $self->{productname} = 'procurve' if $self->opts->servertype eq 'procurve';
       $self->{productname} = 'bluecoat' if $self->opts->servertype eq 'bluecoat';
@@ -86,7 +87,7 @@ sub classify {
       } elsif ($self->{productname} =~ /Allied Telesyn Ethernet Switch/i) {
         bless $self, 'Classes::AlliedTelesyn';
         $self->debug('using Classes::AlliedTelesyn');
-      } elsif ($self->{productname} =~ /Linux cumulus/i) {
+      } elsif ($self->{productname} =~ /(Linux cumulus)|(Cumulus Linux)/i) {
         bless $self, 'Classes::Cumulus';
         $self->debug('using Classes::Cumulus');
       } elsif ($self->{productname} =~ /DS_4100/i) {
@@ -101,6 +102,11 @@ sub classify {
       } elsif ($self->{productname} =~ /EMC\s*DS-24M2/i) {
         bless $self, 'Classes::Brocade';
         $self->debug('using Classes::Brocade');
+      } elsif ($self->{productname} =~ /Brocade.*IronWare/i) {
+        # although there can be a 
+        # Brocade Communications Systems, Inc. FWS648, IronWare Version 07.1....
+        bless $self, 'Classes::Foundry';
+        $self->debug('using Classes::Foundry');
       } elsif ($self->{productname} =~ /Brocade/i) {
         bless $self, 'Classes::Brocade';
         $self->debug('using Classes::Brocade');
@@ -119,6 +125,9 @@ sub classify {
         bless $self, 'Classes::Juniper::SRX';
         $self->debug('using Classes::Juniper::SRX');
       } elsif ($self->{productname} =~ /NetScreen/i) {
+        bless $self, 'Classes::Juniper';
+        $self->debug('using Classes::Juniper');
+      } elsif ($self->{productname} =~ /JunOS/i) {
         bless $self, 'Classes::Juniper';
         $self->debug('using Classes::Juniper');
       } elsif ($self->{productname} =~ /Pulse Secure.*LLC/i) {
@@ -141,6 +150,9 @@ sub classify {
         bless $self, 'Classes::SecureOS';
         $self->debug('using Classes::SecureOS');
       } elsif ($self->{productname} =~ /Linux.*((el6.f5.x86_64)|(el5.1.0.f5app)) .*/i) {
+        bless $self, 'Classes::F5';
+        $self->debug('using Classes::F5');
+      } elsif ($self->{sysobjectid} =~ /1\.3\.6\.1\.4\.1\.3375\./) {
         bless $self, 'Classes::F5';
         $self->debug('using Classes::F5');
       } elsif ($self->{productname} =~ /(H?H3C|HP Comware)/i) {
@@ -198,6 +210,9 @@ sub classify {
       } elsif ($self->{sysobjectid} =~ /1\.3\.6\.1\.4\.1\.272\./) {
         bless $self, 'Classes::Bintec::Bibo';
         $self->debug('using Classes::Bintec::Bibo');
+      } elsif ($self->implements_mib('STEELHEAD-MIB') || $self->implements_mib('STEELHEAD-EX-MIB')) {
+        bless $self, 'Classes::Riverbed';
+        $self->debug('using Classes::Riverbed');
       } elsif ($self->{productname} =~ /^Linux/i) {
         bless $self, 'Classes::Server::Linux';
         $self->debug('using Classes::Server::Linux');
@@ -233,6 +248,8 @@ sub init {
   my $self = shift;
   if ($self->mode =~ /device::interfaces::aggregation::availability/) {
     $self->analyze_and_check_aggregation_subsystem("Classes::IFMIB::Component::LinkAggregation");
+  } elsif ($self->mode =~ /device::interfaces::ifstack/) {
+    $self->analyze_and_check_interface_subsystem("Classes::IFMIB::Component::StackSubsystem");
   } elsif ($self->mode =~ /device::interfaces/) {
     $self->analyze_and_check_interface_subsystem("Classes::IFMIB::Component::InterfaceSubsystem");
   } elsif ($self->mode =~ /device::routes/) {
@@ -241,7 +258,7 @@ sub init {
     } else {
       $self->analyze_and_check_interface_subsystem("Classes::IPMIB::Component::RoutingSubsystem");
     }
-  } elsif ($self->mode =~ /device::bgp/) {
+  } elsif ($self->mode =~ /device::bgp/ && $self->{productname} !~ /JunOS/i) {
     $self->analyze_and_check_bgp_subsystem("Classes::BGP::Component::PeerSubsystem");
   } elsif ($self->mode =~ /device::ospf/) {
     bless $self, "Classes::OSPF";

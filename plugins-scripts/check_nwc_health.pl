@@ -125,6 +125,18 @@ $plugin->add_mode(
     help => 'Check the percentage of up interfaces in a link aggregation',
 );
 $plugin->add_mode(
+    internal => 'device::interfaces::ifstack::status',
+    spec => 'interface-stack-status',
+    alias => undef,
+    help => 'Check the status of interface sublayers (mostly layer 2)',
+);
+$plugin->add_mode(
+    internal => 'device::interfaces::ifstack::availability',
+    spec => 'interface-stack-availability',
+    alias => undef,
+    help => 'Check the percentage of available sublayer interfaces',
+);
+$plugin->add_mode(
     internal => 'device::interfaces::etherstats',
     spec => 'interface-etherstats',
     alias => undef,
@@ -240,6 +252,12 @@ $plugin->add_mode(
     help => 'Show OSPF neighbors',
 );
 $plugin->add_mode(
+    internal => 'device::ha::status',
+    spec => 'ha-status',
+    alias => undef,
+    help => 'Check the status of a clustered setup',
+);
+$plugin->add_mode(
     internal => 'device::ha::role',
     spec => 'ha-role',
     alias => undef,
@@ -304,6 +322,12 @@ $plugin->add_mode(
     spec => 'pool-complections',
     alias => undef,
     help => 'Check the members and connections of a load balancer pool',
+);
+$plugin->add_mode(
+    internal => 'device::wideip::status',
+    spec => 'wideip-status',
+    alias => undef,
+    help => 'Check the status of F5 Wide IPs',
 );
 $plugin->add_mode(
     internal => 'device::lb::pool::list',
@@ -478,7 +502,7 @@ if (! $plugin->check_messages()) {
 } elsif ($plugin->opts->snmpwalk && $plugin->opts->offline) {
   ;
 } else {
-  $plugin->add_critical('wrong device');
+  ;
 }
 my ($code, $message) = $plugin->opts->multiline ?
     $plugin->check_messages(join => "\n", join_all => ', ') :
