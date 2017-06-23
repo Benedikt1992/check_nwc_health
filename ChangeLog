@@ -1,3 +1,36 @@
+* 2017-06-20 6.3.0.4
+  update GLPlugin (lcos-mib)
+* 2017-06-19 6.3.0.3
+  ring redundancy is ok if the stack has only one member
+* 2017-06-09 6.3.0.2
+  fix a bug in f5 member connections (Thanks Yannick Charton)
+  skip ifIndex in interface-stack-status (makes nexus crash)
+* 2017-06-07 6.3.0.1
+  update glplugin
+* 2017-06-01 6.3
+  update glplugin
+  add Lancom
+* 2017-05-19 6.2.2.3
+  workaround for ios 12.x and buggy ifstacktable
+* 2017-05-17 6.2.2.2
+  and fix list-interfaces...
+* 2017-05-17 6.2.2.1
+  fix --name for non-uinique indices
+* 2017-05-17 6.2.2
+  add an index to ifDescr which have no unique names
+* 2017-05-15 6.2.1.5
+  GLPlugin update
+* 2017-05-12 6.2.1.4
+  GLPlugin update
+* 2017-05-12 6.2.1.3
+  fix a bug in interface-health
+* 2017-05-12 6.2.1.2
+  fix a bug in interface-availability
+* 2017-05-09 6.2.1.1
+  fix interface etherstats, stacks
+  add fortigate disks
+* 2017-05-03 6.2.0.2
+  fix a bug in interface-health and 10GE ports.
 * 2017-04-26 6.2.0.1
   use carrier if operstatus is unknown for linuxlocal interfaces
   add dummy speed to linux virtio interfaces
