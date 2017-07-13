@@ -399,6 +399,8 @@ sub update_interface_cache {
   $self->{bootTime} = time - $self->uptime();
   $self->debug(sprintf 'boot time was %s', scalar localtime $self->{bootTime});
   $self->debug(sprintf 'if last change is %s', scalar localtime $self->{ifTableLastChange});
+  $self->debug(sprintf 'if timeticks is %s', scalar localtime $self->timeticks($self->{ifTableLastChange}));
+  $self->{ifTableLastChangeold} = $self->timeticks($self->{ifTableLastChange});
   $self->{ifTableLastChange} = $self->{bootTime} + $self->timeticks($self->{ifTableLastChange});
   $self->debug(sprintf 'if last change is %s', scalar localtime $self->{ifTableLastChange});
   my $update_deadline = time - 3600;
@@ -409,10 +411,15 @@ sub update_interface_cache {
     $self->debug(sprintf 'interface cache is older than 1h (%s < %s)',
         scalar localtime $self->{ifCacheLastChange}, scalar localtime $update_deadline);
   }
-  if ($self->{ifTableLastChange} >= $self->{ifCacheLastChange}) {
+  if ($self->{ifTableLastChange} >= $self->{ifCacheLastChange} && $self->{ifTableLastChange} <= time) {
     $must_update = 1;
-    $self->debug(sprintf 'interface table changes newer than cache file (%s >= %s)',
-        scalar localtime $self->{ifTableLastChange}, scalar localtime $self->{ifCacheLastChange});
+    $self->debug(sprintf 'interface table changes newer than cache file (%s >= %s && %s <= %s)',
+        scalar localtime $self->{ifTableLastChange}, scalar localtime $self->{ifCacheLastChange}, scalar localtime $self->{ifTableLastChange}, scalar localtime time );
+  }
+  if ($self->{ifTableLastChangeold} <= $self->timeticks(120000) &&  $self->{ifTableLastChange} >= $self->{ifCacheLastChange}) {
+    $must_update = 1;
+    $self->debug(sprintf 'interface table is new than cache file (%s <= %s && %s <= %s)',
+        scalar localtime $self->{ifTableLastChangeold}, scalar localtime $self->timeticks(120000), scalar localtime $self->{ifTableLastChange}, scalar localtime $self->{ifCacheLastChange});
   }
   if ($force) {
     $must_update = 1;
